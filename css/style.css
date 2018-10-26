@@ -37,13 +37,10 @@ and open the template in the editor.
     width: auto;
     margin-bottom: 10px;
 }
-#product_table_id td.label-area-size input{
+#product_table_id td.label-area-size input {
     width: 40px;
 }
-th{
-    text-align: center;
-}
-td{
+#product_table_id th, #product_table_id td {
     text-align: center;
 }
 img{
@@ -59,7 +56,7 @@ img{
     margin: 0 auto;
     position: relative;
 }
-#ass_prod_list th, td{
+#ass_prod_list th, #ass_prod_list td{
     text-align: center;
 }
 #my_custom_product_data {
