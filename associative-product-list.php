@@ -2,8 +2,7 @@
     <?php
 
     // Display Product table on admin
-    function productTable()
-    {
+    function wspewp_productTable() {
         global $i;
         $i = 1;
         $productDetails = get_product(get_the_ID());
@@ -48,13 +47,11 @@
                         <?php
                         update_post_meta($product_id, "linked_label_$productID", $i);
                         $i++;
-                    }
-                    ?>
+                    } ?>
                 </tbody>
             </table>
         </form>
         <?php
-    }
-    ?>
-    <?php productTable(); ?>
+    } ?>
+    <?php wspewp_productTable(); ?>
 </div>

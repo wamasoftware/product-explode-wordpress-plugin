@@ -7,9 +7,8 @@
  *  Author URI: http://www.wamasoftware.com/
  */
 
-add_action('init', 'loadScripts');
-
-function loadScripts() {
+add_action('init', 'wspewp_loadScripts');
+function wspewp_loadScripts() {
     wp_register_script('jQuery', plugin_dir_url(__FILE__) . 'js/script.js', array());
     wp_register_style('style', plugin_dir_url(__FILE__) . 'css/style.css', array());
     wp_register_script('dataTable', plugin_dir_url(__FILE__) . 'js/dataTables.min.js', array());
@@ -21,10 +20,10 @@ function loadScripts() {
     wp_enqueue_style('dataTable');
 }
 
-add_filter('woocommerce_product_data_tabs', 'add_my_custom_product_explode_tab', 99, 1);
+add_filter('woocommerce_product_data_tabs', 'add_custom_wspewp_tab', 99, 1);
 
 // Adding Product Explode tab on products menu in Admin
-function add_my_custom_product_explode_tab($productTabs) {
+function add_custom_wspewp_tab($productTabs) {
     $productTabs['product-explode'] = array(
         'label' => __('Product Explode', 'my_text_domain'),
         'target' => 'my_custom_product_data',
@@ -34,9 +33,8 @@ function add_my_custom_product_explode_tab($productTabs) {
     return $productTabs;
 }
 
-add_action('woocommerce_product_data_panels', 'add_my_custom_product_explode_fields');
-
-function add_my_custom_product_explode_fields() {
+add_action('woocommerce_product_data_panels', 'add_custom_wspewp_fields');
+function add_custom_wspewp_fields() {
     global $post;
     $productDetail = get_product(get_the_ID());
     $childProducts = $productDetail->get_children();
@@ -52,8 +50,7 @@ function add_my_custom_product_explode_fields() {
         <div id="test" class="exploded-area">
             <img src="<?php echo $imgUrl ?>">
 
-            <?php
-            for ($i = 1; $i <= count($childProducts); $i++) {
+            <?php for ($i = 1; $i <= count($childProducts); $i++) {
                 $labelWidth = get_post_meta($productID, "pe_label_field_" . $i . "_width", true);
                 $labelHeight = get_post_meta($productID, "pe_label_field_" . $i . "_height", true);
 
@@ -73,8 +70,7 @@ function add_my_custom_product_explode_fields() {
     <?php
 }
 
-add_action('save_post', 'associative_post_meta', 10, 3);
-
+add_action('save_post', 'productExplodePostMeta', 10, 3);
 function productExplodePostMeta($productID) {
     for ($i = 1; $i <= count($_REQUEST['grouped_products']); $i++) {
         update_post_meta($productID, "pe_label_field_" . $i . "_width", $_POST['pe_label_field_' . $i . '_width']);
@@ -87,23 +83,21 @@ function productExplodePostMeta($productID) {
     }
 }
 
-function myplugin_plugin_path() {
+function wspewp_plugin_path() {
     // gets the absolute path to this plugin directory
 
     return untrailingslashit(plugin_dir_path(__FILE__));
 }
 
-add_action('woocommerce_after_main_content', 'displayProductList');
-
-function displayProductList() {
+add_action('woocommerce_after_main_content', 'wspewp_displayProductList');
+function wspewp_displayProductList() {
     global $wpdb, $product, $post, $i;
 
     $productDetails = get_product(get_the_ID());
     $childProducts = $productDetails->get_children();
     $product_id = $productDetails->get_id();
 
-    if (!empty($childProducts)) {
-        ?>
+    if (!empty($childProducts)) { ?>
         <form class="cart grouped_form" action="<?php echo esc_url(apply_filters('woocommerce_add_to_cart_form_action', $product->get_permalink())); ?>" method="post"enctype="multiple/form-data">
 
             <!--    Displaying Image    -->
@@ -114,9 +108,7 @@ function displayProductList() {
                 ?> 
                 <img src="<?php echo $explodeImgURL ?>"> 
 
-                <?php
-                for ($i = 1; $i <= count($childProducts); $i++) {
-
+                <?php for ($i = 1; $i <= count($childProducts); $i++) {
                     $labelWidth = get_post_meta($product_id, "pe_label_field_" . $i . "_width", true);
                     $labelHeight = get_post_meta($product_id, "pe_label_field_" . $i . "_height", true);
 
@@ -130,8 +122,7 @@ function displayProductList() {
                         <span name="label_text_<?php echo $i; ?>" value="<?php echo $labelText; ?>" class="label-text label_text_<?php echo $i; ?>"><?php echo $labelText; ?></span><?php echo $i; ?>
                         <input type="hidden" name="position_left_<?php echo $i; ?>" value="<?php echo $labelLeft; ?>" class="position_left_<?php echo $i; ?>">
                     </div>
-                    <?php
-                }
+                <?php }
                 productExplodePostMeta($productID);
                 $i = 1;
                 ?>
@@ -151,10 +142,8 @@ function displayProductList() {
                             <th>Action</th>
                         </tr>
                     </thead>
-
                     <tbody>
-                        <?php
-                        foreach ($childProducts as $key => $value) {
+                    <?php foreach ($childProducts as $key => $value) {
                             $productslist = get_post($value);
                             $getProduct = new WC_Product($value);
                             $postId = $productslist->ID;
@@ -177,17 +166,13 @@ function displayProductList() {
                             </tr>
                             <?php
                             $i++;
-                        }
-                        ?>
+                        } ?>
                     </tbody>
                 </table>
                 <input type="hidden" name="add-to-cart" value="<?php echo $product_id; ?>"/>
             </div>
         </form> 
-
-        <?php
-    }
-    ?>
+    <?php } ?>
     <script>
         jQuery('.draggable-label').on('click', function () {
             var rowid = jQuery(this).data('lableid');
@@ -198,10 +183,8 @@ function displayProductList() {
     <?php
 }
 
-add_filter('woocommerce_locate_template', 'myplugin_woocommerce_locate_template', 10, 3);
-
-function myplugin_woocommerce_locate_template($template, $template_name, $template_path)
-{
+add_filter('woocommerce_locate_template', 'wspewp_woocommerce_locate_template', 10, 3);
+function wspewp_woocommerce_locate_template($template, $template_name, $template_path) {
     global $woocommerce;
 
     $_template = $template;
@@ -209,7 +192,7 @@ function myplugin_woocommerce_locate_template($template, $template_name, $templa
     if (!$template_path)
         $template_path = $woocommerce->template_url;
 
-    $plugin_path = myplugin_plugin_path() . '/woocommerce/';
+    $plugin_path = wspewp_plugin_path() . '/woocommerce/';
 
     // Look within passed path within the theme - this is priority
     $template = locate_template(
@@ -226,7 +209,6 @@ function myplugin_woocommerce_locate_template($template, $template_name, $templa
     // Use default template
     if (!$template)
         $template = $_template;
-
 
     // Return what we found
     return $template;
